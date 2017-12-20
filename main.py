@@ -6,17 +6,31 @@ def customerInRange(customer, facility):
     distance = math.sqrt(math.pow(customer[0]-facility[0],2)+math.pow(customer[1]-facility[1],2))
     return distance <= facility[2]
 
+def customerDistance(c1, c2):
+    distance = math.sqrt(math.pow(c1[0]-c2[0],2)+math.pow(c1[1]-c2[1],2))
+    return distance
+
+def fitInCell(customers, maxSize):
+    maxRange = customerDistance(customers[0], customers[1])
+    return maxRange <= maxSize
+
+def customerMidpoint(c1, c2):
+    midpointX = (c1[0] + c2[0]) / 2
+    midpointY = (c1[1] + c2[1]) / 2
+    return (midpointX, midpointY)
+
 if __name__ == "__main__":
+    facilityList = []
+    customerList = []
+    needsNewCell = []
     if DEBUGVALS:
-        facilityList = []
-        customerList = []
         smallMin = 5
         smallMax = 25
         f1 = [50, 0, 30, 1000]
         f2 = [-50, 0, 30, 1500]
         c1 = [40, 10]
         c2 = [-40, 10]
-        c3 = [10, 0]
+        c3 = [10, 5]
         c4 = [-10, 0]
         facilityList.append(f1)
         facilityList.append(f2)
@@ -24,12 +38,7 @@ if __name__ == "__main__":
         customerList.append(c2)
         customerList.append(c3)
         customerList.append(c4)
-        for customer in customerList:
-            for facility in facilityList:
-                print(customerInRange(customer, facility))
     else:
-        facilityList = []
-        customerList = []
         smallMin = input("Enter minimum range of small cells: ")
         smallMax = input("Enter maximum range of small cells: ")
 
@@ -67,6 +76,28 @@ if __name__ == "__main__":
                 print("Invalid input, please try again")
             customerList.append(newCustomer)
 
-        for customer in customerList:
-            for facility in facilityList:
-                print(customerInRange(customer, facility))
+    for customer in customerList:
+        rangeList = []
+        for facility in facilityList:
+            rangeList.append(customerInRange(customer, facility))
+        print("\nCustomer {}: ".format(customerList.index(customer)))
+        for line in rangeList:
+            print("In range of facility {}: {}".format(rangeList.index(line), line))
+        if rangeList.count(True) == 0: # if this is true, then the customer is not in range of any facility and a small cell needs to be placed somewhere
+            needsNewCell.append(customer)
+            print("No current facilities in range")
+
+    if len(needsNewCell) == 1:
+        newLocX, newLocY = needsNewCell[0][0], needsNewCell[0][1]
+        print("Place your small cell at coordinates ({}, {}).".format(newLocX, newLocY))
+    elif len(needsNewCell) == 2:
+        if fitInCell(needsNewCell, smallMax):
+            # place a new small cell facility in between the two
+            newLocX, newLocY = customerMidpoint(needsNewCell[0], needsNewCell[1])
+            print("Place your small cell at coordinates ({}, {}).".format(newLocX, newLocY))
+        else:
+            newLoc1X, newLoc1Y = needsNewCell[0][0], needsNewCell[0][1]
+            newLoc2X, newLoc2Y = needsNewCell[1][0], needsNewCell[1][1]
+            print("Place your small cells at coordinates ({}, {}) and ({}, {}).".format(newLoc1X, newLoc1Y, newLoc2X, newLoc2Y))
+    else:
+        print("Sorry, a small cell covering more than two customers is currently not supported.")
