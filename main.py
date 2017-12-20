@@ -94,6 +94,8 @@ if __name__ == "__main__":
             needsNewCell.append(customer)
             #print("No current facilities in range")
 
+    if len(needsNewCell) == 0:
+        print("\nAll customers are covered using these parameters, no small cell needs to be placed.")
     if len(needsNewCell) == 1:
         newLocX, newLocY = needsNewCell[0][0], needsNewCell[0][1]
         print("\nPlace your small cell at coordinates ({}, {}).".format(newLocX, newLocY))
